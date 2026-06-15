@@ -15,7 +15,7 @@ struct {
     WGPUDevice wgpu_device;
 } AppState;
 
-#include "renderer.h"
+#include "renderer/renderer.h"
 
 int init() {
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS | SDL_INIT_GAMEPAD);
