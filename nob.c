@@ -19,6 +19,7 @@
 #define SDL3_LINK_DIR ""
 #define WGPU_LINK_DIR WGPU_DIR "lib/"
 
+
 #ifdef __APPLE__
 #include "build_system/macos_build_util.h"
 #endif
@@ -43,7 +44,7 @@ void link_libraries(Nob_Cmd* p_cmd) {
         nob_cmd_append(p_cmd, "-lSDL3");
 
         nob_cmd_append(p_cmd, "-L" WGPU_LINK_DIR);
-        nob_cmd_append(p_cmd, WGPU_LINK_DIR);
+        nob_cmd_append(p_cmd, "-l" "wgpu_native");
     }
 }
 
