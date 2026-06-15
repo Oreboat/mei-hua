@@ -279,7 +279,7 @@ void rendererDraw() {
     
     assert(command_buffer);
 
-    // Submit the commands
+    // Send the commands we just recorded to the GPU
     wgpuQueueSubmit(RendererState.wgpu_queue, 1, (const WGPUCommandBuffer[]){command_buffer});
 }
 
