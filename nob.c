@@ -3,13 +3,26 @@
 #define NOB_IMPLEMENTATION
 #include "nob.h"
 
-// Some folder paths that we use throughout the build process.
+// Some folder paths that we use throughout the build process
 #define BUILD_FOLDER "build/"
 #define SRC_FOLDER   "src/"
+
+
+#define SDL3_DIR ""
+#define WGPU_DIR "dependecies/WebGPU/linux/"
+
+// Set to the header dirs
+#define SDL3_INCLUDE_DIR ""
+#define WGPU_INCLUDE_DIR WGPU_DIR "include/"
+
+// Set to the directory containing the library
+#define SDL3_LINK_DIR ""
+#define WGPU_LINK_DIR WGPU_DIR "lib/"
 
 #ifdef __APPLE__
 #include "build_system/macos_build_util.h"
 #endif
+
 
 void include_libraies(Nob_Cmd* p_cmd) {
     nob_cmd_append(p_cmd, "-I", "dependecies");
@@ -25,8 +38,13 @@ void link_libraries(Nob_Cmd* p_cmd) {
     }
 #endif
 
-    //nob_cmd_append(p_cmd, "-Lpath");
-    nob_cmd_append(p_cmd, "-lSDL3");
+    {
+        nob_cmd_append(p_cmd, "-L" SDL3_LINK_DIR);
+        nob_cmd_append(p_cmd, "-lSDL3");
+
+        nob_cmd_append(p_cmd, "-L" WGPU_LINK_DIR);
+        nob_cmd_append(p_cmd, WGPU_LINK_DIR);
+    }
 }
 
 void add_source_files(Nob_Cmd* p_cmd) {

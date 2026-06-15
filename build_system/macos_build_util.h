@@ -1,14 +1,25 @@
 //#include "../nob.h"
 
-#define SDL3_INCLUDE_DIR "dependecies/SDL3/macos/SDL3/"
-#define SDL3_LINK_DIR "dependecies/SDL3/macos/SDL3.xcframework/macos-arm64_x86_64/"
+#define SDL3_DIR "dependecies/SDL3/macos/"
+#define WGPU_DIR "dependecies/WebGPU/macos/"
+
+// Set to the header dirs
+#define SDL3_INCLUDE_DIR ""
+#define WGPU_INCLUDE_DIR WGPU_DIR "include/"
+
+// Set to the directory containing the library
+#define SDL3_LINK_DIR ""
+#define WGPU_LINK_DIR WGPU_DIR "lib/"
+
+#define SDL3_INCLUDE_DIR SDL3_DIR "SDL3/"
+#define SDL3_LINK_DIR SDL3_DIR "SDL3.xcframework/macos-arm64_x86_64/"
 #define SDL3_FRAMEWORK_BASENAME "SDL3.framework/"
 #define SDL3_FRAMEWORK_DIR SDL3_LINK_DIR SDL3_FRAMEWORK_BASENAME
 
-#define WGPU_INCLUDE_DIR "dependecies/WebGPU/macos/include/"
-#define WGPU_LINK_DIR "dependecies/WebGPU/macos/lib/"
+#define WGPU_INCLUDE_DIR WGPU_DIR "include/"
+#define WGPU_LINK_DIR WGPU_DIR "lib/"
 #define WGPU_LINK_DYLIB_BASENAME "libwgpu_native.dylib"
-#define WGPU_LINK_DYLIB "dependecies/WebGPU/macos/lib/" WGPU_LINK_DYLIB_BASENAME
+#define WGPU_LINK_DYLIB WGPU_DIR "lib/" WGPU_LINK_DYLIB_BASENAME
 
 
 //nob_cmd_append(&cmd, "-x", "objective-c");
@@ -30,7 +41,7 @@ void macos_link_libraries(Nob_Cmd* p_cmd) {
     //-x objective-c and the link libraries -framework Cocoa, -framework CoreVideo, -framework IOKit, and -framework QuartzCore
 
     // Necessary to use SDL3, at least on macOS
-    nob_cmd_append(&cmd, "-Wl,-rpath,@executable_path");
+    nob_cmd_append(p_cmd, "-Wl,-rpath,@executable_path");
 }
 
 void macos_add_source_files(Nob_Cmd* p_cmd) {
