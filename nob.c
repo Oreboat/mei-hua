@@ -19,16 +19,14 @@
 #define WGPU_LINK_DYLIB "dependecies/WebGPU/macos/lib/" WGPU_LINK_DYLIB_BASENAME
 #endif
 
-int include_libraies(Nob_Cmd* p_cmd) {
+void include_libraies(Nob_Cmd* p_cmd) {
     nob_cmd_append(p_cmd, "-I", "dependecies");
 
     nob_cmd_append(p_cmd, "-I", SDL3_INCLUDE_DIR);
     nob_cmd_append(p_cmd, "-I", WGPU_INCLUDE_DIR);
-
-    return EXIT_SUCCESS;
 }
 
-int link_libraries(Nob_Cmd* p_cmd) {
+void link_libraries(Nob_Cmd* p_cmd) {
 #ifdef __APPLE__
     nob_cmd_append(p_cmd, "-F" SDL3_LINK_DIR);
     nob_cmd_append(p_cmd, "-framework", "SDL3");
@@ -43,23 +41,19 @@ int link_libraries(Nob_Cmd* p_cmd) {
     //nob_cmd_append(p_cmd, "-x", "objective-c", "-framework", "Cocoa", "-framework", "CoreVideo", "-framework", "IOKit", "-framework", "QuartzCore");
     //-x objective-c and the link libraries -framework Cocoa, -framework CoreVideo, -framework IOKit, and -framework QuartzCore
 
-    return EXIT_SUCCESS;
+    return;
 #endif
 
     //nob_cmd_append(p_cmd, "-Lpath");
     nob_cmd_append(p_cmd, "-lSDL3");
-
-    return EXIT_SUCCESS;
 }
 
-int add_source_files(Nob_Cmd* p_cmd) {
+void add_source_files(Nob_Cmd* p_cmd) {
     nob_cc_inputs(p_cmd, SRC_FOLDER "main.c");
 
 #ifdef __APPLE__
     nob_cc_inputs(p_cmd, SRC_FOLDER "platform/macos/" "objc_dummy.m");
 #endif
-
-    return EXIT_SUCCESS;
 }
 
 int build_desktop() {

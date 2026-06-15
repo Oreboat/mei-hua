@@ -13,6 +13,7 @@ struct AppState;
 struct {
     WGPUInstance wgpu_instance;
     WGPUSurface wgpu_surface;
+    WGPUAdapter wgpu_adapter;
     WGPUDevice wgpu_device;
 } RendererState;
 
@@ -30,8 +31,34 @@ int initWebGPU() {
     return EXIT_SUCCESS;
 }
 
-void initDevice() {
+void onAdapterRequestEnded(WGPURequestAdapterStatus status, WGPUAdapter adapter, WGPUStringView message, void *userdata1, void *userdata2) {
+    RendererState.wgpu_adapter = adapter;
+}
 
+WGPUAdapter getAdapter() {
+    WGPURequestAdapterOptions options = WGPU_REQUEST_ADAPTER_OPTIONS_INIT;
+    options.compatibleSurface = RendererState.wgpu_surface;
+
+    WGPURequestAdapterCallbackInfo info = WGPU_REQUEST_ADAPTER_CALLBACK_INFO_INIT;
+    info.callback = onAdapterRequestEnded;
+
+    // The function returns the adapter immediately only on desktop. On web it is asyncronous, so we need to wait for the callback in that case
+    wgpuInstanceRequestAdapter(RendererState.wgpu_instance, &options, info);
+
+#ifdef __EMSCRIPTEN__
+    while (!userData.requestEnded) {
+        emscripten_sleep(100);
+    }
+#endif // __EMSCRIPTEN__
+
+
+    return RendererState.wgpu_adapter;
+}
+
+void initDevice() {
+    RendererState.wgpu_adapter = getAdapter();
+
+    
 }
 
 void initRenderTarget() {
@@ -44,6 +71,9 @@ void initPipeline() {
 
 void rendererInit() {
     initWebGPU();
+    initDevice();
+    initRenderTarget();
+    initPipeline();
 }
 
 void rendererCleanup() {
