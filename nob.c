@@ -11,7 +11,7 @@
 
 int include_libraies(Nob_Cmd* p_cmd) {
 #ifdef __APPLE__
-    nob_cmd_append(p_cmd, "-I", "/Users/human/Documents/dev/GitHub/mei-hua/dependecies/SDL3/macos/SDL3/");
+    nob_cmd_append(p_cmd, "-I", "dependecies/SDL3/macos/SDL3/");
 #endif
 
     return EXIT_SUCCESS;
@@ -19,7 +19,7 @@ int include_libraies(Nob_Cmd* p_cmd) {
 
 int link_libraries(Nob_Cmd* p_cmd) {
 #ifdef __APPLE__
-    nob_cmd_append(p_cmd, "-F", "dependecies/SDL3/macos/SDL3.xcframework/");
+    nob_cmd_append(p_cmd, "-Fdependecies/SDL3/macos/SDL3.xcframework/macos-arm64_x86_64/");
     nob_cmd_append(p_cmd, "-framework", "SDL3");
     return EXIT_SUCCESS;
 #endif
