@@ -35,7 +35,11 @@ void onAdapterRequestEnded(WGPURequestAdapterStatus status, WGPUAdapter adapter,
     RendererState.wgpu_adapter = adapter;
 }
 
-WGPUAdapter getAdapter() {
+void onDeviceRequestEnded(WGPURequestDeviceStatus status, WGPUDevice device, WGPUStringView message, void *userdata1, void *userdata2) {
+    RendererState.wgpu_device = device;
+}
+
+WGPUAdapter getPhysicalDevice() {
     WGPURequestAdapterOptions options = WGPU_REQUEST_ADAPTER_OPTIONS_INIT;
     options.compatibleSurface = RendererState.wgpu_surface;
 
@@ -55,10 +59,13 @@ WGPUAdapter getAdapter() {
     return RendererState.wgpu_adapter;
 }
 
-void initDevice() {
-    RendererState.wgpu_adapter = getAdapter();
+void initLogicalDevice() {
+    RendererState.wgpu_adapter = getPhysicalDevice();
 
-    
+    WGPURequestDeviceCallbackInfo info = WGPU_REQUEST_DEVICE_CALLBACK_INFO_INIT;
+    info.callback = onDeviceRequestEnded;
+
+    wgpuAdapterRequestDevice(RendererState.wgpu_adapter, NULL, info);
 }
 
 void initRenderTarget() {
@@ -71,7 +78,7 @@ void initPipeline() {
 
 void rendererInit() {
     initWebGPU();
-    initDevice();
+    initLogicalDevice();
     initRenderTarget();
     initPipeline();
 }

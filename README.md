@@ -34,3 +34,5 @@ https://eliemichel.github.io/LearnWebGPU
 https://github.com/niranjanbalachandra/sdl3_wgpu/blob/main/main.cpp
 
 https://github.com/gfx-rs/wgpu-native/blob/trunk/examples/triangle/main.c
+
+https://stackoverflow.com/questions/75997043/whats-the-difference-between-a-gpuadapter-and-gpudevice-in-the-webgpu-api
