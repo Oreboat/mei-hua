@@ -30,6 +30,18 @@ int initWebGPU() {
     return EXIT_SUCCESS;
 }
 
+void initDevice() {
+
+}
+
+void initRenderTarget() {
+
+}
+
+void initPipeline() {
+
+}
+
 void rendererInit() {
     initWebGPU();
 }
