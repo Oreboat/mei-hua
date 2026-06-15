@@ -37,7 +37,8 @@ int link_libraries(Nob_Cmd* p_cmd) {
     nob_cmd_append(p_cmd, WGPU_LINK_DYLIB);
 
     // Link sdl3webgpu glue
-    nob_cmd_append(p_cmd, "-x", "objective-c", "-framework", "Cocoa", "-framework", "CoreVideo", "-framework", "IOKit", "-framework", "QuartzCore", "-framework", "Metal");
+    //nob_cmd_append(p_cmd, "-x", "objective-c");
+    nob_cmd_append(p_cmd, "-framework", "Cocoa", "-framework", "CoreVideo", "-framework", "IOKit", "-framework", "QuartzCore", "-framework", "Metal");
 
     //nob_cmd_append(p_cmd, "-x", "objective-c", "-framework", "Cocoa", "-framework", "CoreVideo", "-framework", "IOKit", "-framework", "QuartzCore");
     //-x objective-c and the link libraries -framework Cocoa, -framework CoreVideo, -framework IOKit, and -framework QuartzCore
