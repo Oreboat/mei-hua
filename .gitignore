@@ -50,9 +50,13 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
-
+build/
 # debug information files
 *.dwo
 
 # macOS specific ignores
 *.DS_Store
+
+# archive files
+*.zip
+*.rar

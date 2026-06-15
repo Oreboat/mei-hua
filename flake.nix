@@ -21,8 +21,28 @@
 
         devShells.default = pkgs.mkShell {
           packages = with pkgs; [
-            gcc
+            llvmPackages.clang
+            llvmPackages.clang-tools
             vscodium
+            cmake
+
+
+                # X11
+                libX11
+                libXext
+                libXrandr
+                libXcursor
+                libXi
+                libXfixes
+                libxscrnsaver
+                libxtst
+
+                # Wayland
+                wayland
+                wayland-protocols
+                libxkbcommon
+
+                mesa
           ];
         };
       }
