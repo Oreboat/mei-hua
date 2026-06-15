@@ -22,6 +22,11 @@ struct {
 
     // Command queue
     WGPUQueue wgpu_queue;
+
+    WGPUCommandEncoder wgpu_command_encoder;
+    WGPURenderPassEncoder wgpu_render_pass_encoder;
+
+    WGPUColor clear_color;
 } RendererState;
 
 
@@ -173,6 +178,14 @@ void rendererClear() {
 
 }
 
+void rendererStartFrame() {
+
+}
+
+void rendererEndFrame() {
+
+}
+
 void rendererDraw() {
 
     // WGPUSurfaceConfiguration wgpu_surface_configuration = {};
@@ -215,8 +228,7 @@ void rendererDraw() {
     //assert(surface_texture.status != WGPUSurfaceGetCurrentTextureStatus_SuccessOptimal);
 
     if(!surface_texture.texture) { 
-        printf("Texture no good, aborting!\n");
-        //abort();
+        // This can mean the surface is occluded because the window is minimized.
         return;
     }
     
@@ -230,15 +242,15 @@ void rendererDraw() {
     WGPUCommandEncoderDescriptor encoderDesc = WGPU_COMMAND_ENCODER_DESCRIPTOR_INIT;
     encoderDesc.nextInChain = NULL;
     //encoderDesc.label = "My command encoder";
-    WGPUCommandEncoder command_encoder = wgpuDeviceCreateCommandEncoder(RendererState.wgpu_device, &encoderDesc);
+    RendererState.wgpu_command_encoder = wgpuDeviceCreateCommandEncoder(RendererState.wgpu_device, &encoderDesc);
 
-    wgpuCommandEncoderInsertDebugMarker(command_encoder, (WGPUStringView){"Do one thing", WGPU_STRLEN});
-    wgpuCommandEncoderInsertDebugMarker(command_encoder, (WGPUStringView){"Do another thing"});
+    wgpuCommandEncoderInsertDebugMarker(RendererState.wgpu_command_encoder, (WGPUStringView){"Do one thing", WGPU_STRLEN});
+    wgpuCommandEncoderInsertDebugMarker(RendererState.wgpu_command_encoder, (WGPUStringView){"Do another thing"});
 
 
-    WGPURenderPassEncoder render_pass_encoder =
+    RendererState.wgpu_render_pass_encoder =
         wgpuCommandEncoderBeginRenderPass(
-            command_encoder,
+            RendererState.wgpu_command_encoder,
             &(const WGPURenderPassDescriptor){
                 .label = {"render_pass_encoder", WGPU_STRLEN},
                 .colorAttachmentCount = 1,
@@ -249,26 +261,21 @@ void rendererDraw() {
                             .loadOp = WGPULoadOp_Clear,
                             .storeOp = WGPUStoreOp_Store,
                             .depthSlice = WGPU_DEPTH_SLICE_UNDEFINED,
-                            .clearValue =
-                                (const WGPUColor){
-                                    .r = 0.0,
-                                    .g = 1.0,
-                                    .b = 0.0,
-                                    .a = 1.0,
-                                },
+                            .clearValue = RendererState.clear_color,
                         },
                     },
             });
-    assert(render_pass_encoder);
-
-    wgpuRenderPassEncoderEnd(render_pass_encoder);
-    wgpuRenderPassEncoderRelease(render_pass_encoder);
     
+    assert(RendererState.wgpu_render_pass_encoder);
+
+    wgpuRenderPassEncoderEnd(RendererState.wgpu_render_pass_encoder);
+    wgpuRenderPassEncoderRelease(RendererState.wgpu_render_pass_encoder);
+
     WGPUCommandBuffer command_buffer = wgpuCommandEncoderFinish(
-        command_encoder, &(const WGPUCommandBufferDescriptor){
+        RendererState.wgpu_command_encoder, &(const WGPUCommandBufferDescriptor){
                              .label = {"command_buffer", WGPU_STRLEN},
             });
-    wgpuCommandEncoderRelease(command_encoder);
+    wgpuCommandEncoderRelease(RendererState.wgpu_command_encoder);
     
     assert(command_buffer);
 
