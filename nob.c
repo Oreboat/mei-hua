@@ -12,12 +12,16 @@
 #define SDL3_LINK_DIR "dependecies/SDL3/macos/SDL3.xcframework/macos-arm64_x86_64/"
 #define SDL3_FRAMEWORK_BASENAME "SDL3.framework/"
 #define SDL3_FRAMEWORK_DIR SDL3_LINK_DIR SDL3_FRAMEWORK_BASENAME
+
+#define WGPU_INCLUDE_DIR "dependecies/WebGPU/macos/include/"
+#define WGPU_LINK_DIR "dependecies/WebGPU/macos/lib/"
+#define WGPU_LINK_DYLIB_BASENAME "libwgpu_native.dylib"
+#define WGPU_LINK_DYLIB "dependecies/WebGPU/macos/lib/" WGPU_LINK_DYLIB_BASENAME
 #endif
 
 int include_libraies(Nob_Cmd* p_cmd) {
-#ifdef __APPLE__
     nob_cmd_append(p_cmd, "-I", SDL3_INCLUDE_DIR);
-#endif
+    nob_cmd_append(p_cmd, "-I", WGPU_INCLUDE_DIR);
 
     return EXIT_SUCCESS;
 }
@@ -26,6 +30,10 @@ int link_libraries(Nob_Cmd* p_cmd) {
 #ifdef __APPLE__
     nob_cmd_append(p_cmd, "-F" SDL3_LINK_DIR);
     nob_cmd_append(p_cmd, "-framework", "SDL3");
+
+    //nob_cmd_append(p_cmd, "-Lpath");
+    nob_cmd_append(p_cmd, WGPU_LINK_DYLIB);
+
     return EXIT_SUCCESS;
 #endif
 
@@ -70,6 +78,7 @@ int build_desktop() {
     if (!nob_file_exists(BUILD_FOLDER SDL3_FRAMEWORK_BASENAME)) {
         nob_copy_directory_recursively(SDL3_FRAMEWORK_DIR, BUILD_FOLDER SDL3_FRAMEWORK_BASENAME);
     }
+    nob_copy_file(WGPU_LINK_DYLIB, BUILD_FOLDER WGPU_LINK_DYLIB_BASENAME);
 #endif
 
     return EXIT_SUCCESS;

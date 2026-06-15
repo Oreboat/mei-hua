@@ -2,6 +2,7 @@
 #include <stdlib.h>
 
 #include <SDL3/SDL.h>
+#include <webgpu/webgpu.h>
 
 int main(int argc, char * argv[]) {
     /* my first program in C */
