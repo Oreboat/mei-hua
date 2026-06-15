@@ -30,19 +30,27 @@ int initWebGPU() {
     WGPUInstanceDescriptor instance_desc = WGPU_INSTANCE_DESCRIPTOR_INIT;
     RendererState.wgpu_instance = wgpuCreateInstance(&instance_desc);
 
-    assert(RendererState.wgpu_instance != NULL);
+    assert(RendererState.wgpu_instance);
 
     //WGPUSurfaceDescriptor surface_desc = WGPU_SURFACE_DESCRIPTOR_INIT;
     RendererState.wgpu_surface = SDL_GetWGPUSurface(RendererState.wgpu_instance, AppState.sdl_window); //wgpuInstanceCreateSurface(AppState.gpu_instance, &surface_desc);assert(surface != NULL);
     
+    assert(RendererState.wgpu_surface);
+
     return EXIT_SUCCESS;
 }
 
 void onAdapterRequestEnded(WGPURequestAdapterStatus status, WGPUAdapter adapter, WGPUStringView message, void *userdata1, void *userdata2) {
+    printf("request_adapter status=%#.8x message=%.*s\n", status,
+           (int) message.length, message.data);
+    
     RendererState.wgpu_adapter = adapter;
 }
 
 void onDeviceRequestEnded(WGPURequestDeviceStatus status, WGPUDevice device, WGPUStringView message, void *userdata1, void *userdata2) {
+    printf("request_device status=%#.8x message=%.*s\n", status,
+           (int) message.length, message.data);
+    
     RendererState.wgpu_device = device;
 }
 
@@ -68,32 +76,35 @@ WGPUAdapter getPhysicalDevice() {
 
 void initLogicalDevice() {
     RendererState.wgpu_adapter = getPhysicalDevice();
+    assert(RendererState.wgpu_adapter);
 
     WGPURequestDeviceCallbackInfo info = WGPU_REQUEST_DEVICE_CALLBACK_INFO_INIT;
     info.callback = onDeviceRequestEnded;
 
     wgpuAdapterRequestDevice(RendererState.wgpu_adapter, NULL, info);
+    assert(RendererState.wgpu_device);
 
     RendererState.wgpu_queue = wgpuDeviceGetQueue(RendererState.wgpu_device);
+    assert(RendererState.wgpu_queue);
 }
 
 void initRenderTarget() {
     WGPUSurfaceCapabilities surface_capabilities = {0};
-    wgpuSurfaceGetCapabilities(RendererState.wgpu_surface, RendererState.wgpu_surface, &surface_capabilities);
+    wgpuSurfaceGetCapabilities(RendererState.wgpu_surface, RendererState.wgpu_adapter, &surface_capabilities);
 
     WGPUSurfaceConfiguration config = WGPU_SURFACE_CONFIGURATION_INIT;
     config.device = RendererState.wgpu_device;
     config.usage = WGPUTextureUsage_RenderAttachment;
-    config.format = surface_capabilities.formats[0],
-    config.presentMode = WGPUPresentMode_Fifo,
-    config.alphaMode = surface_capabilities.alphaModes[0],
-    //config.format =  wgpuSurfaceGetPreferredFormat(RendererState.wgpu_surface, RendererState.wgpu_adapter);
+    config.format = surface_capabilities.formats[0];
+    config.presentMode = WGPUPresentMode_Fifo;
+    config.alphaMode = surface_capabilities.alphaModes[0];
 
     // Set surface size to the window size
     SDL_GetWindowSize(AppState.sdl_window, &config.width, &config.height);
 
     wgpuSurfaceConfigure(RendererState.wgpu_surface, &config);
 
+    assert(RendererState.wgpu_surface);
 }
 
 void initPipeline() {
@@ -164,14 +175,14 @@ void rendererClear() {
 
 void rendererDraw() {
 
-    WGPUSurfaceConfiguration wgpu_surface_configuration = {};
+    // WGPUSurfaceConfiguration wgpu_surface_configuration = {};
 
-    WGPUTextureViewDescriptor view_desc = {};
-    view_desc.format = wgpu_surface_configuration.format;
-    view_desc.dimension = WGPUTextureViewDimension_2D;
-    view_desc.mipLevelCount = WGPU_MIP_LEVEL_COUNT_UNDEFINED;
-    view_desc.arrayLayerCount = WGPU_ARRAY_LAYER_COUNT_UNDEFINED;
-    view_desc.aspect = WGPUTextureAspect_All;
+    // WGPUTextureViewDescriptor view_desc = {};
+    // view_desc.format = wgpu_surface_configuration.format;
+    // view_desc.dimension = WGPUTextureViewDimension_2D;
+    // view_desc.mipLevelCount = WGPU_MIP_LEVEL_COUNT_UNDEFINED;
+    // view_desc.arrayLayerCount = WGPU_ARRAY_LAYER_COUNT_UNDEFINED;
+    // view_desc.aspect = WGPUTextureAspect_All;
 
 
     // WGPUTextureView texture_view = wgpuTextureCreateView(surface_texture.texture, &view_desc);
@@ -194,12 +205,28 @@ void rendererDraw() {
     // WGPURenderPassEncoder pass = wgpuCommandEncoderBeginRenderPass(encoder, &render_pass_desc);
 
 
-    WGPUSurfaceTexture surface_texture;
+    WGPUSurfaceTexture surface_texture = WGPU_SURFACE_TEXTURE_INIT;
     wgpuSurfaceGetCurrentTexture(RendererState.wgpu_surface, &surface_texture);
+
+
+    //assert(RendererState.wgpu_surface.s)
+
+    //assert(surface_texture);
+    //assert(surface_texture.status != WGPUSurfaceGetCurrentTextureStatus_SuccessOptimal);
+
+    if(!surface_texture.texture) { 
+        printf("Texture no good, aborting!\n");
+        //abort();
+        return;
+    }
+    
+    assert(surface_texture.texture);
+
     WGPUTextureView frame = wgpuTextureCreateView(surface_texture.texture, NULL);
     assert(frame);
 
-
+    //return;
+    
     WGPUCommandEncoderDescriptor encoderDesc = WGPU_COMMAND_ENCODER_DESCRIPTOR_INIT;
     encoderDesc.nextInChain = NULL;
     //encoderDesc.label = "My command encoder";
@@ -234,6 +261,9 @@ void rendererDraw() {
             });
     assert(render_pass_encoder);
 
+    wgpuRenderPassEncoderEnd(render_pass_encoder);
+    wgpuRenderPassEncoderRelease(render_pass_encoder);
+    
     WGPUCommandBuffer command_buffer = wgpuCommandEncoderFinish(
         command_encoder, &(const WGPUCommandBufferDescriptor){
                              .label = {"command_buffer", WGPU_STRLEN},
