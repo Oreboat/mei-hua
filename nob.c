@@ -36,18 +36,17 @@ int link_libraries(Nob_Cmd* p_cmd) {
     //nob_cmd_append(p_cmd, "-Lpath");
     nob_cmd_append(p_cmd, WGPU_LINK_DYLIB);
 
+    // Link sdl3webgpu glue
+    nob_cmd_append(p_cmd, "-x", "objective-c", "-framework", "Cocoa", "-framework", "CoreVideo", "-framework", "IOKit", "-framework", "QuartzCore", "-framework", "Metal");
+
+    //nob_cmd_append(p_cmd, "-x", "objective-c", "-framework", "Cocoa", "-framework", "CoreVideo", "-framework", "IOKit", "-framework", "QuartzCore");
+    //-x objective-c and the link libraries -framework Cocoa, -framework CoreVideo, -framework IOKit, and -framework QuartzCore
+
     return EXIT_SUCCESS;
 #endif
 
     //nob_cmd_append(p_cmd, "-Lpath");
     nob_cmd_append(p_cmd, "-lSDL3");
-
-    // Link sdl3webgpu glue
-#ifdef __APPLE__
-    nob_cmd_append(p_cmd, "-framework", "Cocoa", "-framework", "CoreVideo", "-framework", "IOKit", "-framework", "QuartzCore", "-framework", "Metal");
-    //nob_cmd_append(p_cmd, "-x", "objective-c", "-framework", "Cocoa", "-framework", "CoreVideo", "-framework", "IOKit", "-framework", "QuartzCore");
-    //-x objective-c and the link libraries -framework Cocoa, -framework CoreVideo, -framework IOKit, and -framework QuartzCore
-#endif
 
     return EXIT_SUCCESS;
 }
@@ -70,8 +69,11 @@ int build_desktop() {
     nob_cc(&cmd);
     nob_cc_flags(&cmd);
 
-   //nob_cmd_append(&cmd, "-x", "objective-c", "-fobjc-arc");
-    nob_cmd_append(&cmd, "-fobjc-arc");
+#ifdef __APPLE__
+    //nob_cmd_append(&cmd, "-x", "objective-c");
+    //nob_cmd_append(&cmd, "-fobjc-arc");
+    //nob_cmd_append(&cmd, "-ObjC");
+#endif
 
     include_libraies(&cmd);
 

@@ -9,19 +9,20 @@
 //#include "sdl3webgpu/sdl3webgpu.c"
 
 struct {
-    SDL_Window* window;
-    WGPUInstance gpu_instance;
+    SDL_Window* sdl_window;
+    WGPUInstance wgpu_instance;
+    WGPUSurface wgpu_surface;
 } AppState;
 
 int initWebGPU() {
     // We create a descriptor
     WGPUInstanceDescriptor instance_desc = WGPU_INSTANCE_DESCRIPTOR_INIT;
-    AppState.gpu_instance = wgpuCreateInstance(&instance_desc);
+    AppState.wgpu_instance = wgpuCreateInstance(&instance_desc);
 
-    assert(AppState.gpu_instance != NULL);
+    assert(AppState.wgpu_instance != NULL);
 
     WGPUSurfaceDescriptor surface_desc = WGPU_SURFACE_DESCRIPTOR_INIT;
-    //WGPUSurface* surface = wgpuInstanceCreateSurface(AppState.gpu_instance, &surface_desc);assert(surface != NULL);
+    AppState.wgpu_surface = SDL_GetWGPUSurface(AppState.wgpu_instance, AppState.sdl_window); //wgpuInstanceCreateSurface(AppState.gpu_instance, &surface_desc);assert(surface != NULL);
     
     return EXIT_SUCCESS;
 }
@@ -35,9 +36,9 @@ int init() {
 	int flags = 0;
     flags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
 
-    AppState.window = SDL_CreateWindow("Meowser!", width, height, flags);
+    AppState.sdl_window = SDL_CreateWindow("Meowser!", width, height, flags);
 
-    SDL_ShowWindow(AppState.window);
+    SDL_ShowWindow(AppState.sdl_window);
 
     initWebGPU();
     
@@ -45,7 +46,8 @@ int init() {
 }
 
 int cleanup() {
-    wgpuInstanceRelease(AppState.gpu_instance);
+    wgpuSurfaceRelease(AppState.wgpu_surface);
+    wgpuInstanceRelease(AppState.wgpu_instance);
 
     SDL_Quit();
 
@@ -73,6 +75,8 @@ int main(int argc, char * argv[]) {
                 quit = true;
             }
         }
+
+        wgpuSurfacePresent(AppState.wgpu_surface);
     }
 
     cleanup();
