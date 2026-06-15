@@ -7,11 +7,16 @@
 #define BUILD_FOLDER "build/"
 #define SRC_FOLDER   "src/"
 
-
+#ifdef __APPLE__
+#define SDL3_INCLUDE_DIR "dependecies/SDL3/macos/SDL3/"
+#define SDL3_LINK_DIR "dependecies/SDL3/macos/SDL3.xcframework/macos-arm64_x86_64/"
+#define SDL3_FRAMEWORK_BASENAME "SDL3.framework/"
+#define SDL3_FRAMEWORK_DIR SDL3_LINK_DIR SDL3_FRAMEWORK_BASENAME
+#endif
 
 int include_libraies(Nob_Cmd* p_cmd) {
 #ifdef __APPLE__
-    nob_cmd_append(p_cmd, "-I", "dependecies/SDL3/macos/SDL3/");
+    nob_cmd_append(p_cmd, "-I", SDL3_INCLUDE_DIR);
 #endif
 
     return EXIT_SUCCESS;
@@ -19,7 +24,7 @@ int include_libraies(Nob_Cmd* p_cmd) {
 
 int link_libraries(Nob_Cmd* p_cmd) {
 #ifdef __APPLE__
-    nob_cmd_append(p_cmd, "-Fdependecies/SDL3/macos/SDL3.xcframework/macos-arm64_x86_64/");
+    nob_cmd_append(p_cmd, "-F" SDL3_LINK_DIR);
     nob_cmd_append(p_cmd, "-framework", "SDL3");
     return EXIT_SUCCESS;
 #endif
@@ -27,6 +32,11 @@ int link_libraries(Nob_Cmd* p_cmd) {
     //nob_cmd_append(p_cmd, "-Lpath");
     nob_cmd_append(p_cmd, "-lSDL3");
 
+    return EXIT_SUCCESS;
+}
+
+int add_source_files(Nob_Cmd* p_cmd) {
+    nob_cc_inputs(p_cmd, SRC_FOLDER "main.c");
     return EXIT_SUCCESS;
 }
 
@@ -40,9 +50,9 @@ int build_desktop() {
 
     include_libraies(&cmd);
 
-    //nob_cmd_append(&cmd, "-I.", "-I" BUILD_FOLDER, "-I" SRC_BUILD_FOLDER); // -I is usually the same across all compilers
     nob_cc_output(&cmd, BUILD_FOLDER "main");
-    nob_cc_inputs(&cmd, SRC_FOLDER "main.c");
+
+    add_source_files(&cmd);
 
     link_libraries(&cmd);
 
@@ -56,6 +66,12 @@ int build_desktop() {
     // nob_cmd_run() automatically resets the cmd array, so you can nob_cmd_append() more strings
     // into it.
 
+#ifdef __APPLE__
+    if (!nob_file_exists(BUILD_FOLDER SDL3_FRAMEWORK_BASENAME)) {
+        nob_copy_directory_recursively(SDL3_FRAMEWORK_DIR, BUILD_FOLDER SDL3_FRAMEWORK_BASENAME);
+    }
+#endif
+
     return EXIT_SUCCESS;
 }
 
@@ -65,9 +81,11 @@ int main(int argc, char **argv)
 
     if (!nob_mkdir_if_not_exists(BUILD_FOLDER)) return EXIT_FAILURE;
     
-    if (!build_desktop()) {
+    if (build_desktop() != EXIT_SUCCESS) {
         return EXIT_FAILURE;
     }
+
+    printf("BUILD SUCCESS\n");
 
     return EXIT_SUCCESS;
 }
