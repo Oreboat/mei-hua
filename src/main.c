@@ -45,7 +45,9 @@ int cleanup() {
 }
 
 void mainLoop(double delta_time) {
+    rendererClear();
     rendererDraw();
+    rendererPresent();
 }
 
 int main(int argc, char * argv[]) {

@@ -13,8 +13,15 @@ struct AppState;
 struct {
     WGPUInstance wgpu_instance;
     WGPUSurface wgpu_surface;
+
+    // Physical GPU handle
     WGPUAdapter wgpu_adapter;
+
+    // Logical GPU handle
     WGPUDevice wgpu_device;
+
+    // Command queue
+    WGPUQueue wgpu_queue;
 } RendererState;
 
 
@@ -25,7 +32,7 @@ int initWebGPU() {
 
     assert(RendererState.wgpu_instance != NULL);
 
-    WGPUSurfaceDescriptor surface_desc = WGPU_SURFACE_DESCRIPTOR_INIT;
+    //WGPUSurfaceDescriptor surface_desc = WGPU_SURFACE_DESCRIPTOR_INIT;
     RendererState.wgpu_surface = SDL_GetWGPUSurface(RendererState.wgpu_instance, AppState.sdl_window); //wgpuInstanceCreateSurface(AppState.gpu_instance, &surface_desc);assert(surface != NULL);
     
     return EXIT_SUCCESS;
@@ -66,29 +73,97 @@ void initLogicalDevice() {
     info.callback = onDeviceRequestEnded;
 
     wgpuAdapterRequestDevice(RendererState.wgpu_adapter, NULL, info);
+
+    RendererState.wgpu_queue = wgpuDeviceGetQueue(RendererState.wgpu_device);
 }
 
 void initRenderTarget() {
+    WGPUSurfaceCapabilities surface_capabilities = {0};
+    wgpuSurfaceGetCapabilities(RendererState.wgpu_surface, RendererState.wgpu_surface, &surface_capabilities);
+
+    WGPUSurfaceConfiguration config = WGPU_SURFACE_CONFIGURATION_INIT;
+    config.device = RendererState.wgpu_device;
+    config.usage = WGPUTextureUsage_RenderAttachment;
+    config.format = surface_capabilities.formats[0],
+    config.presentMode = WGPUPresentMode_Fifo,
+    config.alphaMode = surface_capabilities.alphaModes[0],
+    //config.format =  wgpuSurfaceGetPreferredFormat(RendererState.wgpu_surface, RendererState.wgpu_adapter);
+
+    // Set surface size to the window size
+    SDL_GetWindowSize(AppState.sdl_window, &config.width, &config.height);
+
+    wgpuSurfaceConfigure(RendererState.wgpu_surface, &config);
 
 }
 
 void initPipeline() {
+    WGPUSurfaceCapabilities surface_capabilities = {0};
+    wgpuSurfaceGetCapabilities(RendererState.wgpu_surface, RendererState.wgpu_surface, &surface_capabilities);
 
+    WGPUShaderModule shader_module; // = frmwrk_load_shader_module(RendererState.wgpu_device, "shader.wgsl");
+    assert(shader_module);
+
+    WGPUPipelineLayout pipeline_layout = wgpuDeviceCreatePipelineLayout(
+        RendererState.wgpu_device, &(const WGPUPipelineLayoutDescriptor){
+                        .label = {"pipeline_layout", WGPU_STRLEN},
+                    });
+    assert(pipeline_layout);
+
+    WGPURenderPipeline render_pipeline = wgpuDeviceCreateRenderPipeline(
+        RendererState.wgpu_device,
+        &(const WGPURenderPipelineDescriptor){
+            .label = {"render_pipeline", WGPU_STRLEN},
+            .layout = pipeline_layout,
+            .vertex =
+                (const WGPUVertexState){
+                    .module = shader_module,
+                    .entryPoint = {"vs_main", WGPU_STRLEN},
+                },
+            .fragment =
+                &(const WGPUFragmentState){
+                    .module = shader_module,
+                    .entryPoint = {"fs_main", WGPU_STRLEN},
+                    .targetCount = 1,
+                    .targets =
+                        (const WGPUColorTargetState[]){
+                            (const WGPUColorTargetState){
+                                .format = surface_capabilities.formats[0],
+                                .writeMask = WGPUColorWriteMask_All,
+                            },
+                        },
+                },
+            .primitive =
+                (const WGPUPrimitiveState){
+                    .topology = WGPUPrimitiveTopology_TriangleList,
+                },
+            .multisample =
+                (const WGPUMultisampleState){
+                    .count = 1,
+                    .mask = 0xFFFFFFFF,
+                },
+        });
+    assert(render_pipeline);
 }
 
 void rendererInit() {
     initWebGPU();
     initLogicalDevice();
     initRenderTarget();
-    initPipeline();
+    //initPipeline();
 }
 
 void rendererCleanup() {
+    wgpuSurfaceUnconfigure(RendererState.wgpu_surface);
     wgpuSurfaceRelease(RendererState.wgpu_surface);
     wgpuInstanceRelease(RendererState.wgpu_instance);
 }
 
+void rendererClear() {
+
+}
+
 void rendererDraw() {
+
     WGPUSurfaceConfiguration wgpu_surface_configuration = {};
 
     WGPUTextureViewDescriptor view_desc = {};
@@ -97,6 +172,7 @@ void rendererDraw() {
     view_desc.mipLevelCount = WGPU_MIP_LEVEL_COUNT_UNDEFINED;
     view_desc.arrayLayerCount = WGPU_ARRAY_LAYER_COUNT_UNDEFINED;
     view_desc.aspect = WGPUTextureAspect_All;
+
 
     // WGPUTextureView texture_view = wgpuTextureCreateView(surface_texture.texture, &view_desc);
 
@@ -116,6 +192,58 @@ void rendererDraw() {
     // WGPUCommandEncoder encoder = wgpuDeviceCreateCommandEncoder(RendererState.wgpu_device, &enc_desc);
 
     // WGPURenderPassEncoder pass = wgpuCommandEncoderBeginRenderPass(encoder, &render_pass_desc);
+
+
+    WGPUSurfaceTexture surface_texture;
+    wgpuSurfaceGetCurrentTexture(RendererState.wgpu_surface, &surface_texture);
+    WGPUTextureView frame = wgpuTextureCreateView(surface_texture.texture, NULL);
+    assert(frame);
+
+
+    WGPUCommandEncoderDescriptor encoderDesc = WGPU_COMMAND_ENCODER_DESCRIPTOR_INIT;
+    encoderDesc.nextInChain = NULL;
+    //encoderDesc.label = "My command encoder";
+    WGPUCommandEncoder command_encoder = wgpuDeviceCreateCommandEncoder(RendererState.wgpu_device, &encoderDesc);
+
+    wgpuCommandEncoderInsertDebugMarker(command_encoder, (WGPUStringView){"Do one thing", WGPU_STRLEN});
+    wgpuCommandEncoderInsertDebugMarker(command_encoder, (WGPUStringView){"Do another thing"});
+
+
+    WGPURenderPassEncoder render_pass_encoder =
+        wgpuCommandEncoderBeginRenderPass(
+            command_encoder,
+            &(const WGPURenderPassDescriptor){
+                .label = {"render_pass_encoder", WGPU_STRLEN},
+                .colorAttachmentCount = 1,
+                .colorAttachments =
+                    (const WGPURenderPassColorAttachment[]){
+                        (const WGPURenderPassColorAttachment){
+                            .view = frame,
+                            .loadOp = WGPULoadOp_Clear,
+                            .storeOp = WGPUStoreOp_Store,
+                            .depthSlice = WGPU_DEPTH_SLICE_UNDEFINED,
+                            .clearValue =
+                                (const WGPUColor){
+                                    .r = 0.0,
+                                    .g = 1.0,
+                                    .b = 0.0,
+                                    .a = 1.0,
+                                },
+                        },
+                    },
+            });
+    assert(render_pass_encoder);
+
+    WGPUCommandBuffer command_buffer = wgpuCommandEncoderFinish(
+        command_encoder, &(const WGPUCommandBufferDescriptor){
+                             .label = {"command_buffer", WGPU_STRLEN},
+            });
+    wgpuCommandEncoderRelease(command_encoder);
+    
+    assert(command_buffer);
+
+    // Submit the commands
+    wgpuQueueSubmit(RendererState.wgpu_queue, 1, (const WGPUCommandBuffer[]){command_buffer});
 }
 
 void rendererPresent() {
