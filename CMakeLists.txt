@@ -42,7 +42,7 @@ if(NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/dependencies/flecs/src")
 endif()
 
 # Ensure sdl3 webgpu submodule has been updated
-if(NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/dependencies/sdl3webgpu/src")
+if(NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/dependencies/sdl3webgpu/")
     message(NOTICE "sdl3webgpu source not found")
     message(NOTICE "initializing/updating the sdl3 webgpu submodule...")
 
@@ -56,7 +56,7 @@ endif()
 if (WIN32)
   set(WGPU_URL "https://github.com/gfx-rs/wgpu-native/releases/download/v29.0.0.0/wgpu-native-windows-x86_64-release.zip")
 elseif(APPLE)
-  set(WGPU_URL "https://github.com/gfx-rs/wgpu-native/releases/download/v29.0.0.0/wgpu-native-macos-x86_64-release.zip")
+  set(WGPU_URL "https://github.com/gfx-rs/wgpu-native/releases/download/v29.0.0.0/wgpu-macos-aarch64-release.zip")
 else()
   set(WGPU_URL "https://github.com/gfx-rs/wgpu-native/releases/download/v29.0.0.0/wgpu-linux-x86_64-release.zip")
 endif()
@@ -124,6 +124,10 @@ target_link_libraries(${PROJECT_NAME} PRIVATE m)
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
 target_link_libraries(${PROJECT_NAME} PRIVATE flecs)
 target_link_libraries(${PROJECT_NAME} PRIVATE sdl3webgpu)
+
+if(APPLE)
+target_link_libraries(${PROJECT_NAME} PRIVATE "-framework Cocoa" "-framework CoreVideo" "-framework IOKit" "-framework QuartzCore" "-framework Metal" "objc")
+endif()
 
 
 target_include_directories(${PROJECT_NAME}
