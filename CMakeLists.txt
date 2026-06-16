@@ -81,7 +81,7 @@ if(WIN32)
 endif()
 
 
-
+add_library(webgpu ALIAS wgpu_native)
 
 
 set(CMAKE_C_STANDARD 11)
@@ -100,7 +100,7 @@ file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 
-target_link_libraries(${PROJECT_NAME} PRIVATE wgpu_native)
+target_link_libraries(${PROJECT_NAME} PRIVATE webgpu)
 
 add_subdirectory(dependencies/SDL SYSTEM)
 add_subdirectory(dependencies/flecs SYSTEM)
@@ -110,13 +110,13 @@ target_include_directories(sdl3webgpu PUBLIC
     ${wgpu_native_SOURCE_DIR}/include
 )
 
-target_link_libraries(sdl3webgpu PUBLIC wgpu_native)
+target_link_libraries(sdl3webgpu PUBLIC webgpu)
 
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${SDL_SOURCE_DIR}/cmake")
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${flecs_SOURCE_DIR}/cmake")
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${sdl3webgpu_SOURCE_DIR}/cmake")
 
-target_link_libraries(${PROJECT_NAME} PRIVATE SDL)
+target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
 target_link_libraries(${PROJECT_NAME} PRIVATE flecs)
 target_link_libraries(${PROJECT_NAME} PRIVATE sdl3webgpu)
 
