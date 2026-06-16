@@ -1,9 +1,3 @@
-[submodule "dependecies/sdl3webgpu"]
-	path = dependecies/sdl3webgpu
-	url = git@github.com:eliemichel/sdl3webgpu.git
-[submodule "dependecies/flecs"]
-	path = dependecies/flecs
-	url = git@github.com:SanderMertens/flecs.git
 [submodule "dependencies/flecs"]
 	path = dependencies/flecs
 	url = git@github.com:SanderMertens/flecs.git
