@@ -62,12 +62,12 @@ FetchContent_MakeAvailable(wgpu_native)
 add_library(wgpu_native SHARED IMPORTED)
 
 if(WIN32)
-    set(WGPU_LIB "${wgpu_native_SOURCE_DIR}/wgpu_native.dll")
-    set(WGPU_IMPLIB "${wgpu_native_SOURCE_DIR}/wgpu_native.lib")
+    set(WGPU_LIB "${wgpu_native_SOURCE_DIR}/lib/wgpu_native.dll")
+    set(WGPU_IMPLIB "${wgpu_native_SOURCE_DIR}/bin/wgpu_native.lib")
 elseif(APPLE)
-    set(WGPU_LIB "${wgpu_native_SOURCE_DIR}/libwgpu_native.dylib")
+    set(WGPU_LIB "${wgpu_native_SOURCE_DIR}/lib/libwgpu_native.dylib")
 else()
-    set(WGPU_LIB "${wgpu_native_SOURCE_DIR}/libwgpu_native.so")
+    set(WGPU_LIB "${wgpu_native_SOURCE_DIR}/lib/libwgpu_native.so")
 endif()
 
 set_target_properties(wgpu_native PROPERTIES
@@ -106,6 +106,9 @@ add_subdirectory(dependencies/SDL SYSTEM)
 add_subdirectory(dependencies/flecs SYSTEM)
 add_subdirectory(dependencies/sdl3webgpu SYSTEM)
 
+target_include_directories(sdl3webgpu PUBLIC
+    ${wgpu_native_SOURCE_DIR}/include
+)
 
 target_link_libraries(sdl3webgpu PUBLIC wgpu_native)
 
