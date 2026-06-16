@@ -61,24 +61,28 @@ FetchContent_MakeAvailable(wgpu_native)
 
 add_library(wgpu_native SHARED IMPORTED)
 
+if(WIN32)
+    set(WGPU_LIB "${wgpu_native_SOURCE_DIR}/wgpu_native.dll")
+    set(WGPU_IMPLIB "${wgpu_native_SOURCE_DIR}/wgpu_native.lib")
+elseif(APPLE)
+    set(WGPU_LIB "${wgpu_native_SOURCE_DIR}/libwgpu_native.dylib")
+else()
+    set(WGPU_LIB "${wgpu_native_SOURCE_DIR}/libwgpu_native.so")
+endif()
+
 set_target_properties(wgpu_native PROPERTIES
-    IMPORTED_LOCATION
-        "${wgpu_native_SOURCE_DIR}/wgpu_native.dll"
-    IMPORTED_IMPLIB
-        "${wgpu_native_SOURCE_DIR}/wgpu_native.lib"
-    INTERFACE_INCLUDE_DIRECTORIES
-        "${wgpu_native_SOURCE_DIR}/include"
+    IMPORTED_LOCATION "${WGPU_LIB}"
 )
 
-add_subdirectory(dependencies/SDL SYSTEM)
-add_subdirectory(dependencies/flecs SYSTEM)
-add_subdirectory(dependencies/sdl3webgpu SYSTEM)
+if(WIN32)
+    set_target_properties(wgpu_native PROPERTIES
+        IMPORTED_IMPLIB "${WGPU_IMPLIB}"
+    )
+endif()
 
 
 
-set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${SDL_SOURCE_DIR}/cmake")
-set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${flecs_SOURCE_DIR}/cmake")
-set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${sdl3webgpu_SOURCE_DIR}/cmake")
+
 
 set(CMAKE_C_STANDARD 11)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
@@ -96,13 +100,27 @@ file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h
 
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 
+target_link_libraries(${PROJECT_NAME} PRIVATE wgpu_native)
+
+add_subdirectory(dependencies/SDL SYSTEM)
+add_subdirectory(dependencies/flecs SYSTEM)
+add_subdirectory(dependencies/sdl3webgpu SYSTEM)
+
+
+target_link_libraries(sdl3webgpu PUBLIC wgpu_native)
+
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${SDL_SOURCE_DIR}/cmake")
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${flecs_SOURCE_DIR}/cmake")
+set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${sdl3webgpu_SOURCE_DIR}/cmake")
+
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL)
 target_link_libraries(${PROJECT_NAME} PRIVATE flecs)
 target_link_libraries(${PROJECT_NAME} PRIVATE sdl3webgpu)
-target_link_libraries(${PROJECT_NAME} PRIVATE wgpu_native)
+
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC
     
     ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${CMAKE_CURRENT_SOURCE_DIR}/dependencies
 )
