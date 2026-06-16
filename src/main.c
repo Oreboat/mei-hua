@@ -18,7 +18,9 @@ struct {
 #include "renderer/renderer.h"
 
 int init() {
+    printf("initializing sdl\n");
     SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS | SDL_INIT_GAMEPAD);
+    
     
     int width = 640;
     int height = 360;
@@ -27,9 +29,8 @@ int init() {
     flags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
 
     AppState.sdl_window = SDL_CreateWindow("mei-hua!", width, height, flags);
-
+    
     SDL_ShowWindow(AppState.sdl_window);
-
     rendererInit();
     
     return EXIT_SUCCESS;
@@ -57,14 +58,15 @@ void mainLoop(double delta_time) {
 }
 
 int main(int argc, char * argv[]) {
+    printf("Hello, World\n");
+    
     init();
-
     //Main loop flag
     bool running = true;
 
     //Event handler
     SDL_Event e;
-
+    
     //While application is running
     while( running )
     {

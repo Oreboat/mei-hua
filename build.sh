@@ -2,6 +2,7 @@
 
 if [ "$OS" = "Windows_NT" ]; then
     CMAKE_GENERATOR='-G "MinGW Makefiles"'
+    EXTENSION='.exe'
 else
     CMAKE_GENERATOR=''
 fi
@@ -19,7 +20,7 @@ case "${1:-build}" in
     run)
         eval cmake -B build $CMAKE_FLAGS
         cmake --build build
-        ./.build/my_program
+        ./bin/mei-hua$EXTENSION
         ;;
     config)
         eval cmake -B build $CMAKE_FLAGS

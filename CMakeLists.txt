@@ -1,6 +1,12 @@
 cmake_minimum_required(VERSION 3.30)
+
+
+set(BIN_DIR "${CMAKE_SOURCE_DIR}/bin")
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${BIN_DIR}")
+
 find_program(CMAKE_C_COMPILER NAMES $ENV{CC} gcc PATHS ENV PATH NO_DEFAULT_PATH)
-find_program(CMAKE_CXX_COMPILER NAMES $ENV{CXX} g++ PATHS ENV PATH NO_DEFAULT_PATH)
+
 
 include(FetchContent)
 
@@ -59,15 +65,14 @@ FetchContent_Declare(wgpu_native URL ${WGPU_URL})
 
 FetchContent_MakeAvailable(wgpu_native)
 
-add_library(wgpu_native SHARED IMPORTED)
+add_library(wgpu_native STATIC IMPORTED)
 
 if(WIN32)
-    set(WGPU_LIB "${wgpu_native_SOURCE_DIR}/lib/wgpu_native.dll")
-    set(WGPU_IMPLIB "${wgpu_native_SOURCE_DIR}/bin/wgpu_native.lib")
+    set(WGPU_LIB "${wgpu_native_SOURCE_DIR}/bin/wgpu_native.lib")
 elseif(APPLE)
-    set(WGPU_LIB "${wgpu_native_SOURCE_DIR}/lib/libwgpu_native.dylib")
+    set(WGPU_LIB "${wgpu_native_SOURCE_DIR}/lib/libwgpu_native.a")
 else()
-    set(WGPU_LIB "${wgpu_native_SOURCE_DIR}/lib/libwgpu_native.so")
+    set(WGPU_LIB "${wgpu_native_SOURCE_DIR}/lib/libwgpu_native.a")
 endif()
 
 set_target_properties(wgpu_native PROPERTIES
@@ -93,7 +98,6 @@ endif()
 
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${BUILD_PATH}")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${BUILD_PATH}")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${BUILD_PATH}")
 
 file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.c*")
 file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h*")
@@ -116,6 +120,7 @@ set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${SDL_SOURCE_DIR}/cmake")
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${flecs_SOURCE_DIR}/cmake")
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${sdl3webgpu_SOURCE_DIR}/cmake")
 
+target_link_libraries(${PROJECT_NAME} PRIVATE m)
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
 target_link_libraries(${PROJECT_NAME} PRIVATE flecs)
 target_link_libraries(${PROJECT_NAME} PRIVATE sdl3webgpu)

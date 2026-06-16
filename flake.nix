@@ -26,6 +26,7 @@
                 vscodium
                 cmake
 
+                glibc
 
                 # X11
                 libX11
@@ -43,6 +44,7 @@
                 wayland-protocols
                 libxkbcommon
                 mesa
+                pipewire
           ];
         };
       }
