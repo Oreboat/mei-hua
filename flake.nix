@@ -25,6 +25,7 @@
                 llvmPackages.clang-tools
                 vscodium
                 cmake
+                pkg-config
 
                 glibc
 
@@ -41,10 +42,28 @@
 
                 # Wayland
                 wayland
+                wayland.dev
                 wayland-protocols
+                wayland-scanner
+                alsa-lib
+                pipewire
+                libdecor
                 libxkbcommon
+                dbus
+                udev
+                egl-wayland
+                waylandpp
+                wayland-protocols
+                xwayland
+                libGL
+                libffi
+
+                libxkbcommon
+                libdecor         
+
                 mesa
                 pipewire
+
           ];
         };
       }

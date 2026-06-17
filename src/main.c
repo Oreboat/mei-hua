@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-
 #include <SDL3/SDL.h>
 #include <webgpu/webgpu.h>
 
@@ -18,9 +17,14 @@ struct {
 #include "renderer/renderer.h"
 
 int init() {
-    printf("initializing sdl\n");
-    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO | SDL_INIT_EVENTS | SDL_INIT_GAMEPAD);
-    
+    printf("initializing sdl %d.%d.%d\n",
+       SDL_MAJOR_VERSION,
+       SDL_MINOR_VERSION,
+       SDL_MICRO_VERSION);
+    if(!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO |SDL_INIT_EVENTS | SDL_INIT_GAMEPAD)){
+        printf("{Error 0001} SDL_Init failed: %s\n", SDL_GetError());
+        return EXIT_FAILURE;
+    }
     
     int width = 640;
     int height = 360;
@@ -29,7 +33,10 @@ int init() {
     flags |= SDL_WINDOW_HIGH_PIXEL_DENSITY;
 
     AppState.sdl_window = SDL_CreateWindow("mei-hua!", width, height, flags);
-    
+    if(AppState.sdl_window == NULL) {
+        printf("{Error 0002} SDL Window is null");
+        return EXIT_FAILURE;
+    }
     SDL_ShowWindow(AppState.sdl_window);
     rendererInit();
     
@@ -59,8 +66,15 @@ void mainLoop(double delta_time) {
 
 int main(int argc, char * argv[]) {
     printf("Hello, World\n");
+    printf("drivers:\n");
+    for (int i = 0; i < SDL_GetNumVideoDrivers(); i++) {
+        printf("  %s\n", SDL_GetVideoDriver(i));
+    }
+    printf("current: %s\n", SDL_GetCurrentVideoDriver());
     
-    init();
+    if(init() == EXIT_FAILURE){
+        return EXIT_FAILURE;
+    }
     //Main loop flag
     bool running = true;
 

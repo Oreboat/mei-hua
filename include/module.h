@@ -1,7 +1,7 @@
 #pragma once
 #include "app.h"
 
-typedef struct Module module_t;
+
 
 struct Module{
     //the name of the module
@@ -14,6 +14,9 @@ struct Module{
     void(*deinit)(module_t *self, App *app);
 };
 
+struct Module *create_module_list(int list_size);
+
 #define MODULE(module_name) struct module_name{\
     module_t module;\
-}
+};\
+void module_name##_on_init(module_t *self, App *app);
