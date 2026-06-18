@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.30)
 
-
+set(SDL_DEPS_SHARED FALSE CACHE BOOL "Build SDL dependencies as shared libraries")
 set(BIN_DIR "${CMAKE_SOURCE_DIR}/bin")
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${BIN_DIR}")
@@ -106,13 +106,6 @@ add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE webgpu)
 
-set(SDL_OPENGL OFF CACHE BOOL "" FORCE)
-set(SDL_OPENGLES OFF CACHE BOOL "" FORCE)
-set(SDL_OPENGLES2 OFF CACHE BOOL "" FORCE)
-set(SDL_EGL OFF CACHE BOOL "" FORCE)
-set(SDL_VULKAN OFF CACHE BOOL "" FORCE)
-
-
 add_subdirectory(dependencies/SDL SYSTEM)
 add_subdirectory(dependencies/flecs SYSTEM)
 add_subdirectory(dependencies/sdl3webgpu SYSTEM)
@@ -131,11 +124,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE m)
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
 target_link_libraries(${PROJECT_NAME} PRIVATE flecs)
 target_link_libraries(${PROJECT_NAME} PRIVATE sdl3webgpu)
-
-if(APPLE)
-target_link_libraries(${PROJECT_NAME} PRIVATE "-framework Cocoa" "-framework CoreVideo" "-framework IOKit" "-framework QuartzCore" "-framework Metal" "objc")
-endif()
-
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC

@@ -16,7 +16,7 @@ struct Module{
 
 struct Module *create_module_list(int list_size);
 
-#define MODULE(module_name) struct module_name{\
+#define MODULE(module_name)typedef struct module_name{\
     module_t module;\
-};\
+}module_name;\
 void module_name##_on_init(module_t *self, App *app);

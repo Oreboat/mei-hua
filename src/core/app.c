@@ -1,6 +1,9 @@
-#include "app.h"
-#include "module.h"
+#include "core/app.h"
+#include "core/module.h"
+#include <stdbool.h>
+#include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include <webgpu/webgpu.h>
 
 #define APP_MODULE_ALLOC_SIZE 10
@@ -20,11 +23,34 @@ void app_deinit(App *self){
     free(self);
 }
 
-void app_add_module(App *self, module_t module){
+void app_add_module(App *self, module_t *module){
     if(self->modules == NULL) return;
+    if(module->on_init == NULL) return;
+    
+    if(app_has_module(self, module)) return;
     if(self->module_count == self->module_current_max){
-        self->modules = realloc(self->modules,sizeof(struct Module) + 10);
+        self->modules = realloc(self->modules,sizeof(struct Module) * (self->module_current_max + APP_MODULE_ALLOC_SIZE));
         if(self->modules == NULL) return;
         self->module_current_max += 10;
     }
+    
+    self->modules[self->module_count] = *module; 
+    printf("adding Module %s\n", self->modules[self->module_count].name);
+    self->module_count += 1;
+    self->modules[self->module_count - 1].on_init(&self->modules[self->module_count - 1], self);
+}
+
+bool app_has_module(App *self, module_t *module){
+    for(int i = 0; i < self->module_count; i++){
+        
+        if(strcmp(self->modules[i].name, module->name) == 0){
+            printf("Module %s already exists\n", module->name);
+            return true;
+        }
+    }
+    return false;
+}
+
+void app_run(App *self){
+
 }

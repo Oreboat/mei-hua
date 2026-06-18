@@ -8,9 +8,14 @@
 #include <webgpu/webgpu.h>
 #include "sdl3webgpu/sdl3webgpu.h"
 
-#include "module.h"
+#include "core/module.h"
 
 MODULE(renderer);
+
+void renderer_on_init(module_t *self, App *app){
+    printf("Hello from the renderer module :3\n");
+    add_module(app, renderer);
+}
 
 struct AppState;
 

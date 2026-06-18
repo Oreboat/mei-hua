@@ -40,6 +40,8 @@
                 libxtst
                 libxcb
 
+                sdl3
+
                 # Wayland
                 wayland
                 wayland.dev

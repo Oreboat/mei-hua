@@ -4,6 +4,7 @@
 #include <SDL3/SDL.h>
 #include <webgpu/webgpu.h>
 
+#include "core/app.h"
 #include "sdl3webgpu/sdl3webgpu.h"
 //#include "sdl3webgpu/sdl3webgpu.c"
 
@@ -14,7 +15,7 @@ struct {
     WGPUDevice wgpu_device;
 } AppState;
 
-#include "renderer/renderer.h"
+#include "modules/renderer/renderer.h"
 
 int init() {
     printf("initializing sdl %d.%d.%d\n",
@@ -23,9 +24,10 @@ int init() {
        SDL_MICRO_VERSION);
     if(!SDL_Init(SDL_INIT_VIDEO | SDL_INIT_AUDIO |SDL_INIT_EVENTS | SDL_INIT_GAMEPAD)){
         printf("{Error 0001} SDL_Init failed: %s\n", SDL_GetError());
+        printf("current driver: %s\n", SDL_GetCurrentVideoDriver());
         return EXIT_FAILURE;
     }
-    
+    printf("current driver: %s\n", SDL_GetCurrentVideoDriver());
     int width = 640;
     int height = 360;
 
@@ -55,7 +57,7 @@ int cleanup() {
 double game_time = 0.0;
 void mainLoop(double delta_time) {
     RendererState.clear_color = (WGPUColor){.r = SDL_sin(game_time) * 0.5 + 0.5, .g = SDL_sin(game_time + 1.0) * 0.5 + 0.5, .b = SDL_sin(game_time + 2.0) * 0.5 + 0.5};
-
+    
     game_time += delta_time;
 
     // Graphics
@@ -65,12 +67,14 @@ void mainLoop(double delta_time) {
 }
 
 int main(int argc, char * argv[]) {
+    App *app = app_init();
+    add_module(app, renderer);
     printf("Hello, World\n");
     printf("drivers:\n");
     for (int i = 0; i < SDL_GetNumVideoDrivers(); i++) {
         printf("  %s\n", SDL_GetVideoDriver(i));
     }
-    printf("current: %s\n", SDL_GetCurrentVideoDriver());
+    
     
     if(init() == EXIT_FAILURE){
         return EXIT_FAILURE;
