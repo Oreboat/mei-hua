@@ -63,6 +63,14 @@ endif()
 
 FetchContent_Declare(wgpu_native URL ${WGPU_URL})
 
+FetchContent_Declare(
+    glfw 
+    GIT_REPOSITORY https://github.com/glfw/glfw.git
+    GIT_TAG 3.4
+)
+
+FetchContent_MakeAvailable(glfw)
+
 FetchContent_MakeAvailable(wgpu_native)
 
 add_library(wgpu_native STATIC IMPORTED)
@@ -105,29 +113,31 @@ file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE webgpu)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
 
-add_subdirectory(dependencies/SDL SYSTEM)
+# add_subdirectory(dependencies/SDL SYSTEM)
 add_subdirectory(dependencies/flecs SYSTEM)
-add_subdirectory(dependencies/sdl3webgpu SYSTEM)
+# add_subdirectory(dependencies/sdl3webgpu SYSTEM)
 
-target_include_directories(sdl3webgpu PUBLIC
-    ${wgpu_native_SOURCE_DIR}/include
-)
+# target_include_directories(sdl3webgpu PUBLIC
+   # ${wgpu_native_SOURCE_DIR}/include
+# )
 
-target_link_libraries(sdl3webgpu PUBLIC webgpu)
+# target_link_libraries(sdl3webgpu PUBLIC webgpu)
 
-set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${SDL_SOURCE_DIR}/cmake")
+# set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${SDL_SOURCE_DIR}/cmake")
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${flecs_SOURCE_DIR}/cmake")
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${sdl3webgpu_SOURCE_DIR}/cmake")
 
 target_link_libraries(${PROJECT_NAME} PRIVATE m)
-target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
+# target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
 target_link_libraries(${PROJECT_NAME} PRIVATE flecs)
-target_link_libraries(${PROJECT_NAME} PRIVATE sdl3webgpu)
+# target_link_libraries(${PROJECT_NAME} PRIVATE sdl3webgpu)
+
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC
-    
+    ${wgpu_native_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/dependencies
 )

@@ -19,7 +19,7 @@
           program = "${pkgs.godot-mono}/bin/godot-mono";
         };
 
-        devShells.default = pkgs.mkShell {
+        devShells.${system}.default = pkgs.mkShell {
           packages = with pkgs; [
                 llvmPackages.clang
                 llvmPackages.clang-tools
@@ -28,6 +28,7 @@
                 pkg-config
 
                 glibc
+                libxinerama
 
                 # X11
                 libX11
@@ -67,6 +68,10 @@
                 pipewire
 
           ];
+            LD_LIBRARY_PATH = pkgs.lib.makeLibraryPath (with pkgs; [
+              wayland
+              # any other libraries that need to be dynamically linked to
+          ]);
         };
       }
     );

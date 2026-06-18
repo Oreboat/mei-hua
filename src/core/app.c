@@ -1,10 +1,13 @@
 #include "core/app.h"
 #include "core/module.h"
+#include <flecs.h>
+#include <flecs/addons/flecs_c.h>
+#include <flecs/private/addons.h>
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <webgpu/webgpu.h>
+
 
 #define APP_MODULE_ALLOC_SIZE 10
 
@@ -50,6 +53,7 @@ bool app_has_module(App *self, module_t *module){
     }
     return false;
 }
+
 
 void app_run(App *self){
 

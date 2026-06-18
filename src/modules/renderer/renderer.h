@@ -1,20 +1,26 @@
+#include "core/app.h"
 #ifndef RENDERER_H
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
 
-#include <SDL3/SDL.h>
+// #include <SDL3/SDL.h>
 #include <webgpu/webgpu.h>
-#include "sdl3webgpu/sdl3webgpu.h"
+// #include "sdl3webgpu/sdl3webgpu.h"
 
 #include "core/module.h"
+#include "window/window.h"
+MODULE(renderer_m);
 
-MODULE(renderer);
-
-void renderer_on_init(module_t *self, App *app){
+void renderer_m_on_init(module_t *self, App *app){
     printf("Hello from the renderer module :3\n");
-    add_module(app, renderer);
+    add_module(app, window_m);
+    ecs_entity_t renderer_entity = ecs_new(app->world);
+    window_init(app->world, renderer_entity);
+    while(window_should_close(app->world, renderer_entity)){
+        poll_events();
+    }
 }
 
 struct AppState;
@@ -47,7 +53,7 @@ int initWebGPU() {
     assert(RendererState.wgpu_instance);
 
     //WGPUSurfaceDescriptor surface_desc = WGPU_SURFACE_DESCRIPTOR_INIT;
-    RendererState.wgpu_surface = SDL_GetWGPUSurface(RendererState.wgpu_instance, AppState.sdl_window); //wgpuInstanceCreateSurface(AppState.gpu_instance, &surface_desc);assert(surface != NULL);
+    // RendererState.wgpu_surface = SDL_GetWGPUSurface(RendererState.wgpu_instance, AppState.sdl_window); //wgpuInstanceCreateSurface(AppState.gpu_instance, &surface_desc);assert(surface != NULL);
     
     assert(RendererState.wgpu_surface);
 
@@ -114,7 +120,7 @@ void initRenderTarget() {
     config.alphaMode = surface_capabilities.alphaModes[0];
 
     // Set surface size to the window size
-    SDL_GetWindowSize(AppState.sdl_window, &config.width, &config.height);
+    // SDL_GetWindowSize(AppState.sdl_window, &config.width, &config.height);
 
     wgpuSurfaceConfigure(RendererState.wgpu_surface, &config);
 
@@ -123,7 +129,7 @@ void initRenderTarget() {
 
 void initPipeline() {
     WGPUSurfaceCapabilities surface_capabilities = {0};
-    wgpuSurfaceGetCapabilities(RendererState.wgpu_surface, RendererState.wgpu_surface, &surface_capabilities);
+    // wgpuSurfaceGetCapabilities(RendererState.wgpu_surface, RendererState.wgpu_surface, &surface_capabilities);
 
     WGPUShaderModule shader_module; // = frmwrk_load_shader_module(RendererState.wgpu_device, "shader.wgsl");
     assert(shader_module);

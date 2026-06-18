@@ -24,6 +24,8 @@ void app_add_module(App *self, module_t *module);
 bool app_has_module(App *self, module_t *module);
 
 void app_run(App *self);
+//this is just what flecs does, but uses the app
+#define add_system(app, system, phase, ...) ECS_SYSTEM(app.world, system, phase, __VA_ARGS__)
 
 #define add_module(app, module_name) module_name module_name##_module;\
 module_name##_module.module.on_init = module_name##_on_init;\
