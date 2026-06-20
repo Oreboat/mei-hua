@@ -11,8 +11,8 @@ void glfw_m_on_init(module_t *self, App *app){
     ECS_COMPONENT_DEFINE(app->world, Window);
     glfwSetErrorCallback(error_callback);
     if(!glfwInit()){
-        char *description;
-        int code = glfwGetError(*description);
+        const char *description;
+        int code = glfwGetError(&description);
         printf("GLFW error {%d}: %s\n", code, description);
     }
 }

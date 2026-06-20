@@ -2,10 +2,8 @@ cmake_minimum_required(VERSION 3.30)
 
 set(SDL_DEPS_SHARED FALSE CACHE BOOL "Build SDL dependencies as shared libraries")
 set(BIN_DIR "${CMAKE_SOURCE_DIR}/bin")
-
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON CACHE INTERNAL "")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${BIN_DIR}")
-
-find_program(CMAKE_C_COMPILER NAMES $ENV{CC} gcc PATHS ENV PATH NO_DEFAULT_PATH)
 
 
 include(FetchContent)
@@ -18,43 +16,24 @@ project(${PROJECT_NAME} LANGUAGES C CXX)
 find_program(GIT git REQUIRED)
 
 
-if(NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/dependencies/SDL/src")
-    message(NOTICE "sdl3 source not found")
-    message(NOTICE "initializing/updating the sdl submodule...")
+message(STATUS "Compiler ID: ${CMAKE_CXX_COMPILER_ID}")
+message(STATUS "Frontend: ${CMAKE_CXX_COMPILER_FRONTEND_VARIANT}")
+message(STATUS "Compiler: ${CMAKE_CXX_COMPILER}")
+message(STATUS "Linker: ${CMAKE_LINKER}")
 
-    execute_process(
-        COMMAND git submodule update --init dependencies/SDL
-        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
-        COMMAND_ERROR_IS_FATAL ANY
-    )
-endif()
 
-# Ensure flecs submodule has been updated
-if(NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/dependencies/flecs/src")
-    message(NOTICE "flecs source not found")
-    message(NOTICE "initializing/updating the flecs submodule...")
 
-    execute_process(
-        COMMAND git submodule update --init dependencies/flecs
-        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
-        COMMAND_ERROR_IS_FATAL ANY
-    )
-endif()
-
-# Ensure sdl3 webgpu submodule has been updated
-if(NOT EXISTS "${CMAKE_CURRENT_LIST_DIR}/dependencies/sdl3webgpu/")
-    message(NOTICE "sdl3webgpu source not found")
-    message(NOTICE "initializing/updating the sdl3 webgpu submodule...")
-
-    execute_process(
-        COMMAND git submodule update --init dependencies/sdl3webgpu
-        WORKING_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}
-        COMMAND_ERROR_IS_FATAL ANY
-    )
-endif()
-
-if (WIN32)
-  set(WGPU_URL "https://github.com/gfx-rs/wgpu-native/releases/download/v29.0.0.0/wgpu-native-windows-x86_64-release.zip")
+if(WIN32)
+    if(CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
+        set(WinCompiler "msvc")
+        set(WinExt "lib")
+        set(WinFron "")
+    else()
+        set(WinCompiler "gnu")
+        set(WinExt "a")
+        set(WinFron "lib")
+    endif()
+    set(WGPU_URL "https://github.com/gfx-rs/wgpu-native/releases/download/v29.0.0.0/wgpu-windows-x86_64-${WinCompiler}-release.zip")
 elseif(APPLE)
   set(WGPU_URL "https://github.com/gfx-rs/wgpu-native/releases/download/v29.0.0.0/wgpu-macos-aarch64-release.zip")
 else()
@@ -69,14 +48,20 @@ FetchContent_Declare(
     GIT_TAG 3.4
 )
 
-FetchContent_MakeAvailable(glfw)
+FetchContent_Declare(
+    flecs
+    GIT_REPOSITORY https://github.com/SanderMertens/flecs.git
+    GIT_TAG v4.1.5
+)
 
+FetchContent_MakeAvailable(glfw)
+FetchContent_MakeAvailable(flecs)
 FetchContent_MakeAvailable(wgpu_native)
 
 add_library(wgpu_native STATIC IMPORTED)
 
 if(WIN32)
-    set(WGPU_LIB "${wgpu_native_SOURCE_DIR}/bin/wgpu_native.lib")
+    set(WGPU_LIB "${wgpu_native_SOURCE_DIR}/lib/${WinFron}wgpu_native.${WinExt}")
 elseif(APPLE)
     set(WGPU_LIB "${wgpu_native_SOURCE_DIR}/lib/libwgpu_native.a")
 else()
@@ -116,7 +101,6 @@ target_link_libraries(${PROJECT_NAME} PRIVATE webgpu)
 target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
 
 # add_subdirectory(dependencies/SDL SYSTEM)
-add_subdirectory(dependencies/flecs SYSTEM)
 # add_subdirectory(dependencies/sdl3webgpu SYSTEM)
 
 # target_include_directories(sdl3webgpu PUBLIC
@@ -129,11 +113,21 @@ add_subdirectory(dependencies/flecs SYSTEM)
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${flecs_SOURCE_DIR}/cmake")
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${sdl3webgpu_SOURCE_DIR}/cmake")
 
-target_link_libraries(${PROJECT_NAME} PRIVATE m)
+if(UNIX AND NOT APPLE)
+    target_link_libraries(${PROJECT_NAME} PRIVATE m)
+endif()
 # target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
 target_link_libraries(${PROJECT_NAME} PRIVATE flecs)
 # target_link_libraries(${PROJECT_NAME} PRIVATE sdl3webgpu)
 
+if (MSVC)
+    target_link_libraries(${PROJECT_NAME} PRIVATE
+        ntdll
+        userenv
+        bcrypt
+        ws2_32
+    )
+endif()
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC
@@ -141,3 +135,4 @@ target_include_directories(${PROJECT_NAME}
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${CMAKE_CURRENT_SOURCE_DIR}/dependencies
 )
+
