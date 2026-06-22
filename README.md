@@ -30,6 +30,15 @@ Windows
     bin/{debug or release}/mei-hua.exe
 ```
 
+Build with build.sh
+```
+bash build.sh
+
+//to run
+
+bash build.sh run
+```
+
 # References
 
 https://eliemichel.github.io/LearnWebGPU
