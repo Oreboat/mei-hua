@@ -21,8 +21,6 @@ message(STATUS "Frontend: ${CMAKE_CXX_COMPILER_FRONTEND_VARIANT}")
 message(STATUS "Compiler: ${CMAKE_CXX_COMPILER}")
 message(STATUS "Linker: ${CMAKE_LINKER}")
 
-
-
 if(WIN32)
     if(CMAKE_CXX_COMPILER_FRONTEND_VARIANT STREQUAL "MSVC")
         set(WinCompiler "msvc")
@@ -41,11 +39,15 @@ else()
 endif()
 
 FetchContent_Declare(wgpu_native URL ${WGPU_URL})
-
 FetchContent_Declare(
-    glfw 
-    GIT_REPOSITORY https://github.com/glfw/glfw.git
-    GIT_TAG 3.4
+    sdl3
+    GIT_REPOSITORY https://github.com/libsdl-org/SDL.git
+    GIT_TAG release-3.4.10
+)
+FetchContent_Declare(
+  sdl3webgpu
+  GIT_REPOSITORY https://github.com/eliemichel/sdl3webgpu.git
+  GIT_TAG v1.0.0
 )
 
 FetchContent_Declare(
@@ -54,11 +56,13 @@ FetchContent_Declare(
     GIT_TAG v4.1.5
 )
 
-FetchContent_MakeAvailable(glfw)
 FetchContent_MakeAvailable(flecs)
 FetchContent_MakeAvailable(wgpu_native)
-
 add_library(wgpu_native STATIC IMPORTED)
+add_library(webgpu ALIAS wgpu_native)
+FetchContent_MakeAvailable(sdl3)
+FetchContent_MakeAvailable(sdl3webgpu)
+
 
 if(WIN32)
     set(WGPU_LIB "${wgpu_native_SOURCE_DIR}/lib/${WinFron}wgpu_native.${WinExt}")
@@ -79,7 +83,7 @@ if(WIN32)
 endif()
 
 
-add_library(webgpu ALIAS wgpu_native)
+
 
 
 set(CMAKE_C_STANDARD 11)
@@ -98,16 +102,15 @@ file(GLOB_RECURSE HEADERS CONFIGURE_DEPENDS "${CMAKE_CURRENT_SOURCE_DIR}/src/*.h
 add_executable(${PROJECT_NAME} ${SOURCES} ${HEADERS})
 
 target_link_libraries(${PROJECT_NAME} PRIVATE webgpu)
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
 
 # add_subdirectory(dependencies/SDL SYSTEM)
 # add_subdirectory(dependencies/sdl3webgpu SYSTEM)
 
-# target_include_directories(sdl3webgpu PUBLIC
-   # ${wgpu_native_SOURCE_DIR}/include
-# )
+target_include_directories(sdl3webgpu PUBLIC
+   ${wgpu_native_SOURCE_DIR}/include
+)
 
-# target_link_libraries(sdl3webgpu PUBLIC webgpu)
+target_link_libraries(sdl3webgpu PUBLIC webgpu)
 
 # set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${SDL_SOURCE_DIR}/cmake")
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${flecs_SOURCE_DIR}/cmake")
@@ -116,9 +119,9 @@ set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${sdl3webgpu_SOURCE_DIR}/cmake")
 if(UNIX AND NOT APPLE)
     target_link_libraries(${PROJECT_NAME} PRIVATE m)
 endif()
-# target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
+target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
 target_link_libraries(${PROJECT_NAME} PRIVATE flecs)
-# target_link_libraries(${PROJECT_NAME} PRIVATE sdl3webgpu)
+target_link_libraries(${PROJECT_NAME} PRIVATE sdl3webgpu)
 
 if (MSVC)
     target_link_libraries(${PROJECT_NAME} PRIVATE

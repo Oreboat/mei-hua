@@ -13,18 +13,21 @@ Link the dependencies:
 - SDL3
 - WebGPU
 
-Only macOS is supported at the moment.
-
+MacOS, Windows, and Linux are all currently supported, however there are known issues when running on NixOS
 # Usage
 
-Build with nob.h:
+Build with CMakeLists:
 ```
-cc -o nob nob.c && ./nob
+cmake -B build
+cmake --build ./build
 ```
 
 Run:
 ```
-./build/main
+Linux and MacOS
+    bin/mei-hua
+Windows
+    bin/{debug or release}/mei-hua.exe
 ```
 
 # References

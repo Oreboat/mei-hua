@@ -18,7 +18,7 @@ void renderer_m_on_init(module_t *self, App *app){
     add_module(app, window_m);
     ecs_entity_t renderer_entity = ecs_new(app->world);
     window_init(app->world, renderer_entity);
-    while(window_should_close(app->world, renderer_entity)){
+    while(!window_should_close(app->world, renderer_entity)){
         poll_events();
     }
 }

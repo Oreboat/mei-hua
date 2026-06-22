@@ -2,12 +2,10 @@
 #include <flecs.h>
 #include <flecs/addons/flecs_c.h>
 #include "core/app.h"
-#include "glfw.h"
-
-
+#include "sdl.h"
 
 void window_m_on_init(module_t *self, App *app){
-    add_module(app, glfw_m);
+  add_module(app, sdl_m);
 }
 
 void window_init(ecs_world_t *world, ecs_entity_t id){
