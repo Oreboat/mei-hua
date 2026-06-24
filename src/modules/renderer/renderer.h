@@ -1,4 +1,6 @@
 #include "core/app.h"
+#include "flecs.h"
+#include "flecs/addons/flecs_c.h"
 #ifndef RENDERER_H
 
 #include <stdio.h>
@@ -10,18 +12,24 @@
 // #include "sdl3webgpu/sdl3webgpu.h"
 
 #include "core/module.h"
-#include "window/window.h"
 MODULE(renderer_m);
 
-void renderer_m_on_init(module_t *self, App *app){
-    printf("Hello from the renderer module :3\n");
-    add_module(app, window_m);
-    ecs_entity_t renderer_entity = ecs_new(app->world);
-    window_init(app->world, renderer_entity);
-    while(!window_should_close(app->world, renderer_entity)){
-        poll_events();
-    }
-}
+ECS_COMPONENT_DECLARE(Renderer);
+
+typedef struct{
+  //init(app, id)
+  int (*_init)(App *app, ecs_entity_t id);
+  //start frame
+  void (*_start_frame)();
+  //render
+  void (*_draw)();
+  //end frame
+  void (*_end_frame)();
+  //query for render components
+  ecs_query_t render_query;
+}RendererInterface;
+
+extern ECS_COMPONENT_DECLARE(RendererInterface);
 
 struct AppState;
 
@@ -43,6 +51,8 @@ struct {
 
     WGPUColor clear_color;
 } RendererState;
+
+
 
 
 int initWebGPU() {

@@ -4,18 +4,12 @@
 #include "core/app.h"
 #include "sdl.h"
 
+ECS_COMPONENT_DECLARE(WindowInterface);
+ECS_COMPONENT_DECLARE(Window);
+
 void window_m_on_init(module_t *self, App *app){
-  add_module(app, sdl_m);
-}
+  ECS_COMPONENT_DEFINE(app->world, WindowInterface);
+  ECS_COMPONENT_DEFINE(app->world, Window);
 
-void window_init(ecs_world_t *world, ecs_entity_t id){
-    create_window(world, id);
-}
-
-int window_should_close(ecs_world_t *world, ecs_entity_t id){
-    return should_window_close(world, id);
-}
-
-void poll_events(){
-    get_events();
+  ecs_add_id(app->world, ecs_id(WindowInterface), EcsSingleton);
 }

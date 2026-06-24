@@ -1,19 +1,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <assert.h>
-// #include <SDL3/SDL.h>
-#include <webgpu/webgpu.h>
+
+#include "modules/default_modules.h"
 
 #include "core/app.h"
 // #include "sdl3webgpu/sdl3webgpu.h"
 //#include "sdl3webgpu/sdl3webgpu.c"
 
-struct {
-    // SDL_Window* sdl_window;
-    WGPUInstance wgpu_instance;
-    WGPUSurface wgpu_surface;
-    WGPUDevice wgpu_device;
-} AppState;
+
 
 #include "modules/renderer/renderer.h"
 
@@ -68,7 +63,7 @@ void mainLoop(double delta_time) {
 
 int main(int argc, char * argv[]) {
     App *app = app_init();
-    add_module(app, renderer_m);
+    add_module(app, default_m);
     printf("Hello, World\n");
     return EXIT_SUCCESS;
 }
