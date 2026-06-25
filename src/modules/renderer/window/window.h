@@ -9,7 +9,7 @@ MODULE(window_m);
 extern ECS_COMPONENT_DECLARE(World);
 
 typedef struct{
-  void (*window_init)(App *app, ecs_entity_t id);
+  int (*window_init)(App *app, ecs_entity_t id);
   int (*window_should_close)(App *app, ecs_entity_t id);
   void (*window_cleanup)(App *app, ecs_entity_t id);
 }WindowInterface;

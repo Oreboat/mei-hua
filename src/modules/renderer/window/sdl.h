@@ -13,9 +13,11 @@ typedef struct{
 
 extern ECS_COMPONENT_DECLARE(Window);
 
-void create_window(ecs_world_t *world, ecs_entity_t id);
+int create_window(App *app, ecs_entity_t id);
 
-int should_window_close(ecs_world_t *world, ecs_entity_t id);
+int should_window_close(App *app, ecs_entity_t id);
+
+void cleanup(App *app, ecs_entity_t id);
 
 void get_events();
 

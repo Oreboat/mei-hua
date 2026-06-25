@@ -1,8 +1,11 @@
 #include "sdl.h"
 #include "SDL3/SDL.h"
 #include "SDL3/SDL_init.h"
+#include "flecs.h"
 #include "flecs/addons/flecs_c.h"
+#include "window.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 ECS_COMPONENT_DECLARE(Window);
 void sdl_m_on_init(module_t *self, App *app){
@@ -13,23 +16,30 @@ void sdl_m_on_init(module_t *self, App *app){
   }
   //add SDL component
   ECS_COMPONENT_DEFINE(app->world, Window);
+  ecs_singleton_set(app->world, WindowInterface, {
+      .window_init = create_window,
+      .window_should_close = should_window_close,
+      .window_cleanup = cleanup,
+      });
 }
 
-void create_window(ecs_world_t *world, ecs_entity_t id){
-  ecs_set(world, id, Window, {
+int create_window(App *app, ecs_entity_t id){
+  ecs_set(app->world, id, Window, {
       .window = SDL_CreateWindow("mei-hua", 1280, 720, NULL)
   });
 
-  const Window *window = ecs_get(world, id, Window);
+  const Window *window = ecs_get(app->world, id, Window);
   if(window->window == NULL){
-    printf("Window is Null");
+    return EXIT_FAILURE;
   }
+
+  return EXIT_SUCCESS;
 }
 
-int should_window_close(ecs_world_t *world, ecs_entity_t id){
+int should_window_close(App *app, ecs_entity_t id){
   return 0;
 }
 
-void get_events(){
-
+void cleanup(App *app, ecs_entity_t id){
+  
 }
