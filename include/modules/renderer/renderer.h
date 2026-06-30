@@ -1,5 +1,4 @@
-#ifndef RENDERER_H
-#define RENDERER_H
+#pragma once
 
 #include "core/app.h"
 #include "flecs.h"
@@ -60,5 +59,3 @@ void rendererEndFrame();
 void rendererDraw();
 
 void rendererPresent();
-
-#endif /* RENDERER_H */
