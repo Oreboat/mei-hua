@@ -2,7 +2,7 @@
 #include "core/app.h"
 #include "flecs/addons/flecs_c.h"
 #include "window/sdl.h"
-#include "renderer.h"
+#include "modules/renderer/renderer.h"
 
 ECS_COMPONENT_DECLARE(WGPURenderer);
 
@@ -26,3 +26,12 @@ void wgpu_m_on_init(module_t *Self, App *app){
         })
   });
 }
+
+
+int wgpu_renderer_init(App *app, ecs_entity_t id) { return 0; }
+
+void wgpu_start_frame() {}
+
+void wgpu_draw() {}
+
+void wgpu_end_frame() {}

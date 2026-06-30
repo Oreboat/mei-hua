@@ -1,4 +1,5 @@
-#include "window.h"
+#include "modules/renderer/window/window.h"
+
 #include <flecs.h>
 #include <flecs/addons/flecs_c.h>
 #include "core/app.h"

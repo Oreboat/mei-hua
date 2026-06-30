@@ -47,7 +47,7 @@ FetchContent_Declare(
 FetchContent_Declare(
   sdl3webgpu
   GIT_REPOSITORY https://github.com/eliemichel/sdl3webgpu.git
-  GIT_TAG v1.0.0
+  GIT_TAG main #GIT_TAG v1.0.0
 )
 
 FetchContent_Declare(
@@ -112,6 +112,10 @@ target_include_directories(sdl3webgpu PUBLIC
 
 target_link_libraries(sdl3webgpu PUBLIC webgpu)
 
+if(APPLE)
+    target_link_libraries(sdl3webgpu PUBLIC "-framework Cocoa" "-framework CoreVideo" "-framework IOKit" "-framework QuartzCore" "-framework Metal" "objc" "-lobjc")
+endif()
+
 # set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${SDL_SOURCE_DIR}/cmake")
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${flecs_SOURCE_DIR}/cmake")
 set(CMAKE_MODULE_PATH "${CMAKE_MODULE_PATH};${sdl3webgpu_SOURCE_DIR}/cmake")
@@ -122,6 +126,10 @@ endif()
 target_link_libraries(${PROJECT_NAME} PRIVATE SDL3::SDL3)
 target_link_libraries(${PROJECT_NAME} PRIVATE flecs)
 target_link_libraries(${PROJECT_NAME} PRIVATE sdl3webgpu)
+
+if(APPLE)
+    target_link_libraries(${PROJECT_NAME} PRIVATE "-framework Cocoa" "-framework CoreVideo" "-framework IOKit" "-framework QuartzCore" "-framework Metal" "objc")
+endif()
 
 if (MSVC)
     target_link_libraries(${PROJECT_NAME} PRIVATE
