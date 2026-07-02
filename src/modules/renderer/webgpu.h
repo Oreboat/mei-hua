@@ -1,3 +1,5 @@
+#pragma once
+
 #include "core/app.h"
 #include "core/module.h"
 #include "webgpu/webgpu.h"

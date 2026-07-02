@@ -10,7 +10,7 @@
 
 
 
-#include "modules/renderer/renderer.h"
+//#include "modules/renderer/renderer.h"
 
 int init() {
     // printf("initializing sdl %d.%d.%d\n",
@@ -40,26 +40,6 @@ int init() {
     return EXIT_SUCCESS;
 }
 
-int cleanup() {
-    rendererCleanup();
-
-	// SDL_DestroyWindow(AppState.sdl_window);
-    // SDL_Quit();
-
-    return EXIT_SUCCESS;
-}
-
-double game_time = 0.0;
-void mainLoop(double delta_time) {
-    //RendererState.clear_color = (WGPUColor){.r = SDL_sin(game_time) * 0.5 + 0.5, .g = SDL_sin(game_time + 1.0) * 0.5 + 0.5, .b = SDL_sin(game_time + 2.0) * 0.5 + 0.5};
-    
-    game_time += delta_time;
-
-    // Graphics
-    rendererClear();
-    rendererDraw();
-    rendererPresent();
-}
 
 int main(int argc, char * argv[]) {
     App *app = app_init();

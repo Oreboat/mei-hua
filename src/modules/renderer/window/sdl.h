@@ -1,4 +1,4 @@
-
+#pragma once
 
 #include "SDL3/SDL_video.h"
 #include "core/module.h"
@@ -13,11 +13,11 @@ typedef struct{
 
 extern ECS_COMPONENT_DECLARE(Window);
 
-int create_window(App *app, ecs_entity_t id);
+int sdl_create_window(App *app, ecs_entity_t id);
 
-int should_window_close(App *app, ecs_entity_t id);
+int sdl_should_window_close(App *app, ecs_entity_t id);
 
-void cleanup(App *app, ecs_entity_t id);
+void sdl_cleanup(App *app, ecs_entity_t id);
 
 void get_events();
 
